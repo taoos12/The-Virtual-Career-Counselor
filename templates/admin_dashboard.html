@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Virtual Career Counselor{% endblock %}
+
+{% block nav_menu %}
+<span class="nav-welcome">Admin: {{ admin }}</span>
+<button class="theme-toggle" onclick="toggleTheme()">
+    <span class="theme-icon">🌙</span>
+    <span class="theme-text">Dark</span>
+</button>
+<a href="/logout" class="nav-link">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <p>Monitor platform statistics and user activity</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <h3 id="totalUsers">-</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-content">
+                <h3 id="totalConversations">-</h3>
+                <p>Total Conversations</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-content">
+                <h3 id="totalAdmins">-</h3>
+                <p>Total Admins</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <h3>Active</h3>
+                <p>System Status</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="refreshStats()">Refresh Statistics</button>
+            <button class="btn btn-secondary" onclick="exportData()">Export Data</button>
+        </div>
+    </div>
+    
+    <div class="system-info">
+        <h2>System Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Platform:</strong> Virtual Career Counselor
+            </div>
+            <div class="info-item">
+                <strong>Technology:</strong> Flask + Generative AI
+            </div>
+            <div class="info-item">
+                <strong>Database:</strong> Python Dictionaries (In-Memory)
+            </div>
+            <div class="info-item">
+                <strong>Status:</strong> <span class="status-active">Online</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadStats() {
+    try {
+        const response = await fetch('/api/admin/stats');
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('totalUsers').textContent = result.stats.total_users;
+            document.getElementById('totalConversations').textContent = result.stats.total_conversations;
+            document.getElementById('totalAdmins').textContent = result.stats.total_admins;
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
+
+function refreshStats() {
+    loadStats();
+    showNotification('Statistics refreshed successfully!');
+}
+
+function exportData() {
+    showNotification('Data export feature coming soon!');
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Load stats on page load
+document.addEventListener('DOMContentLoaded', loadStats);
+</script>
+{% endblock %}

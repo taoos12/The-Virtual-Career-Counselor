@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Virtual Career Counselor{% endblock %}
+
+{% block nav_menu %}
+<span class="nav-welcome">Welcome, {{ username }}!</span>
+<button class="theme-toggle" onclick="toggleTheme()">
+    <span class="theme-icon">🌙</span>
+    <span class="theme-text">Dark</span>
+</button>
+<a href="/logout" class="nav-link">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Your Career Counseling Dashboard</h1>
+        <p>Ask me anything about your career path, and I'll provide personalized guidance!</p>
+    </div>
+    
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+            <div class="ai-message">
+                <div class="message-content">
+                    <strong>Career Counselor AI:</strong> Hello! I'm your virtual career counselor powered by advanced AI. I can help you with three main areas:
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>🎯 Scenario 1: Career Path Exploration</strong><br>
+                        Ask about specific careers to get comprehensive overviews, required skills, recommended courses, and job roles.<br>
+                        <em>Try: "Tell me about software developer" or "What does a data scientist do?"</em>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>📚 Scenario 2: Personalized Course Recommendations</strong><br>
+                        Get tailored course suggestions based on your interests and career goals.<br>
+                        <em>Try: "I want to learn programming" or "Recommend business courses"</em>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>📊 Scenario 3: Job Market Insights</strong><br>
+                        Access real-time job market trends, salary information, and in-demand skills.<br>
+                        <em>Try: "What are the job market trends?" or "Show me salary information"</em>
+                    </div>
+                    
+                    What would you like to explore today?
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <form id="chatForm" class="chat-form">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Try these examples:
+• 'Tell me about data scientist career path'
+• 'I want to learn programming courses'  
+• 'What are current job market trends?'
+• 'Show me UX designer skills and courses'
+• 'Recommend business management courses'"
+                    rows="4"
+                    required
+                ></textarea>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const chatForm = document.getElementById('chatForm');
+const messageInput = document.getElementById('messageInput');
+
+function addMessage(content, isUser = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = isUser ? 'user-message' : 'ai-message';
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    
+    if (isUser) {
+        messageContent.innerHTML = `<strong>You:</strong> ${content}`;
+    } else {
+        messageContent.innerHTML = `<strong>Career Counselor AI:</strong> ${content}`;
+    }
+    
+    messageDiv.appendChild(messageContent);
+    chatMessages.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    // Add user message to chat
+    addMessage(message, true);
+    
+    // Clear input
+    messageInput.value = '';
+    
+    // Show typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'ai-message typing';
+    typingDiv.innerHTML = '<div class="message-content"><strong>Career Counselor AI:</strong> <em>Thinking...</em></div>';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const result = await response.json();
+        
+        // Remove typing indicator
+        chatMessages.removeChild(typingDiv);
+        
+        if (result.success) {
+            addMessage(result.response);
+        } else {
+            addMessage('Sorry, I encountered an error. Please try again.');
+        }
+    } catch (error) {
+        // Remove typing indicator
+        chatMessages.removeChild(typingDiv);
+        addMessage('Sorry, I encountered a connection error. Please try again.');
+    }
+});
+
+// Auto-resize textarea
+messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+</script>
+{% endblock %}

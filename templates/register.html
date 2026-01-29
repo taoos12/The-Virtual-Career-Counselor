@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Virtual Career Counselor{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create Your Account</h2>
+        <form id="registerForm" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="user_type">Account Type</label>
+                <select id="user_type" name="user_type" required>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Register</button>
+        </form>
+        <div class="auth-links">
+            <p>Already have an account? <a href="/login">Login here</a></p>
+            <p><a href="/home">View Homepage</a></p>
+        </div>
+        <div id="message" class="message"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        user_type: document.getElementById('user_type').value
+    };
+    
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        const messageDiv = document.getElementById('message');
+        
+        if (result.success) {
+            messageDiv.className = 'message success';
+            messageDiv.textContent = result.message + ' You can now login.';
+            document.getElementById('registerForm').reset();
+        } else {
+            messageDiv.className = 'message error';
+            messageDiv.textContent = result.message;
+        }
+    } catch (error) {
+        document.getElementById('message').className = 'message error';
+        document.getElementById('message').textContent = 'An error occurred. Please try again.';
+    }
+});
+</script>
+{% endblock %}
