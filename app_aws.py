@@ -23,7 +23,7 @@ projects_table = dynamodb.Table('Projects')
 enrollments_table = dynamodb.Table('Enrollments')
 
 # SNS Topic ARN
-SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:713881794827:AWS_topic' 
+SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:727646483984:virtual_career_counselor' 
 
 # File Upload Config
 UPLOAD_FOLDER = 'static/uploads'
